@@ -1,53 +1,46 @@
 package com.project.code.Repo;
 
+import com.project.code.Model.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-public interface ProductRepository {
-// 1. Add the repository interface:
-//    - Extend JpaRepository<Product, Long> to inherit basic CRUD functionality.
-//    - This allows the repository to perform operations like save, delete, update, and find without having to implement these methods manually.
+import java.util.List;
 
-// Example: public interface ProductRepository extends JpaRepository<Product, Long> {}
+@Repository
+public interface ProductRepository extends JpaRepository<Product,Long> {
+    List findAll();
 
-// 2. Add custom query methods:
-//    - **findAll**:
-//      - This method will retrieve all products.
-//      - Return type: List<Product>
+    List findByCategory(String category);
 
-// Example: public List<Product> findAll();
+    List findByPriceBetween(Double minPrice,Double maxPrice);
 
-//    - **findByCategory**:
-//      - This method will retrieve products by their category.
-//      - Return type: List<Product>
-//      - Parameter: String category
+    List findBySku(String sku);
 
-// Example: public List<Product> findByCategory(String category);
+    Product findByName(String name);
 
-//    - **findByPriceBetween**:
-//      - This method will retrieve products within a price range.
-//      - Return type: List<Product>
-//      - Parameters: Double minPrice, Double maxPrice
+    Product findByid(Long id);
 
-// Example: public List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
+    @Query("SELECT i.product FROM Inventory i WHERE i.store.id = :storeId AND LOWER(i.product.name) LIKE LOWER(CONCAT('%', :pname, '%'))")
+    List findByNameLike(long storeId,String pname);
 
-//    - **findBySku**:
-//      - This method will retrieve a product by its SKU.
-//      - Return type: Product
-//      - Parameter: String sku
+    @Query("SELECT i.product FROM Inventory i WHERE i.store.id = :storeId AND LOWER(i.product.name) LIKE LOWER(CONCAT('%', :pname, '%')) AND i.product.category = :category")
+    List findByNameAndCategory(long storeId, String pname,String category);
 
-// Example: public Product findBySku(String sku);
+    @Query("SELECT i.product FROM Inventory i WHERE i.store.id = :storeId AND i.product.category = :category")
+    List findByCategoryAndStoreId(long storeId,String category);
 
-//    - **findByName**:
-//      - This method will retrieve a product by its name.
-//      - Return type: Product
-//      - Parameter: String name
+    @Query("SELECT i FROM Product i WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :pname, '%'))")
+    List findProductBySubName(String pname);
 
-// Example: public Product findByName(String name);
+    @Query("SELECT i.product FROM Inventory i WHERE i.store.id = :storeId")
+    List findProductsByStoreId(Long storeId);
 
-//    - **findByNameLike**:
-//      - This method will retrieve products by a name pattern for a specific store.
-//      - Return type: List<Product>
-//      - Parameters: Long storeId, String pname
-//      - Use @Query annotation to write a custom query.
+    @Query("SELECT i.product FROM Inventory i WHERE i.product.category = :category and i.store.id = :storeId")
+    List findProductByCategory(String category, long storeId);
+
+    @Query("SELECT i FROM Product i WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :pname, '%')) AND i.category = :category")
+    List findProductBySubNameAndCategory(String pname, String category);
 
 
 }
